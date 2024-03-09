@@ -4,10 +4,16 @@ export interface AnthropicClientOptions {
     anthropicVersion?: AnthropicVersions;
 }
 
+export type Models = 'claude-3-opus-20240229' | 'claude-3-sonnet-20240229';
+
 export interface CreateMessageOptions {
-    systemPrompt: string;
-    model: 'claude-3-opus-20240229' | 'claude-3-sonnet-20240229';
-    maxTokens: number;
+    system?: string; //system prompt
+    metadata?: Record<string, string>,
+    stop_sequences?: Array<string>,
+    stream?: boolean,
+    temperature?: number,
+    top_p?: number,
+    top_k?: number
 }
 
 export interface InputMessage {
@@ -51,17 +57,23 @@ class AnthropicClient {
         this.anthropicVersion = options?.anthropicVersion ?? '2023-06-01';
     }
 
-    public async createMessage(messages: Array<InputMessage>, options?: CreateMessageOptions): Promise<any> {
+    public async createMessage(model: Models, messages: Array<InputMessage>, max_tokens: number, options?: CreateMessageOptions): Promise<CreateMessageResponse> {
         const headers = new Headers();
         headers.append("anthropic-version", this.anthropicVersion);
         headers.append("Content-Type", "application/json");
         headers.append("x-api-key", this.apiKey);
+        const optionals: Record<string, any> = {};
+        for (const [k, v] of Object.entries(options)) {
+            if (v !== undefined && v !== null) {
+                optionals[k] = v;
+            }
+        }
 
         const body = JSON.stringify({
-            ...(options?.systemPrompt ? { "system": options.systemPrompt } : undefined),
-            "model": options?.model ?? 'claude-3-opus-20240229',
-            "max_tokens": options?.maxTokens ?? 1024,
-            "messages": messages
+            model ,
+            max_tokens,
+            messages: messages,
+            ...(Object.keys(optionals).length > 0 ? { ...optionals as Partial<CreateMessageOptions> } : undefined)
         });
         const requestInit: RequestInit = {
             method: 'POST',

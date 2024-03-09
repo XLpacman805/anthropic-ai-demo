@@ -10,7 +10,10 @@
         "esModuleInterop": true,
         "moduleResolution": "node",
         "types": ["node"],
-        "typeRoots": ["./node_modules/@types"]
+        "typeRoots": ["./node_modules/@types"],
+        "paths": {
+            "@clients/*": ["./src/clients/*"]
+        }
     },
     "include": [
         "src/**/*"
