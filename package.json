@@ -11,9 +11,10 @@
     "typescript": "^5.4.2"
   },
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && node ./dist/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "transpile": "tsc",
+    "start": "npm run transpile && node ./dist/app.js",
+    "test": "node --test",
+    "build": "npm run transpile && npm test"
   },
   "author": "",
   "license": "ISC",
